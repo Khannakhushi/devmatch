@@ -304,6 +304,30 @@ export default function AboutPage() {
           </div>
         </Card>
       </motion.div>
+
+      <motion.footer
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+        className="mt-16 text-center"
+      >
+        <div className="flex items-center justify-center space-x-1">
+          <span className="text-muted-foreground">Made with</span>
+          <Heart className="h-4 w-4 text-red-500 fill-red-500" />
+          <span className="text-muted-foreground">by</span>
+          <Link
+            href="https://khyaatikhanna.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium hover:text-primary transition-colors"
+          >
+            Khyaati Khanna
+          </Link>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          &copy; {new Date().getFullYear()} All rights reserved.
+        </p>
+      </motion.footer>
     </div>
   );
 }
