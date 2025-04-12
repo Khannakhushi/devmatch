@@ -11,9 +11,7 @@
   <p><i>Swipe right on your perfect tech stack 💻❤️</i></p>
 </div>
 
-<p align="center">
-  <img src="https://source.unsplash.com/nXt5HtLmlgE/800x400" alt="DevMatch" width="600" />
-</p>
+
 
 <div align="center">
   <h3><a href="https://devmatch-web.vercel.app/" target="_blank">🔗 Live Demo: DevMatch</a></h3>
