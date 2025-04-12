@@ -53,7 +53,7 @@ DevMatch is built with a modern, high-performance stack:
 1. Clone the repository
 
    ```bash
-   git clone https://github.com/yourusername/devmatch.git
+   git clone https://github.com/Khannakhushi/devmatch.git
    cd devmatch
    ```
 
@@ -92,10 +92,10 @@ This project is [MIT](https://choosealicense.com/licenses/mit/) licensed.
 
 ## 🤝 Contributing
 
-Contributions, issues and feature requests are welcome! Feel free to check the [issues page](https://github.com/yourusername/devmatch/issues).
+Contributions, issues and feature requests are welcome! Feel free to check the [issues page](https://github.com/Khannakhushi/devmatch/issues).
 
 ---
 
 <div align="center">
-  <p>Built with ❤️ by [Your Name]</p>
+  <p>Built with ❤️ by Khyaati Khanna</p>
 </div>
