@@ -144,7 +144,7 @@ export default function Home() {
       ))}
 
       {/* Flying logos in the foreground */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden hidden sm:block">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {backgroundIcons.slice(0, 10).map((icon, i) => {
           // Use deterministic values instead of random
           const size = 20 + (i % 3) * 10;
@@ -179,6 +179,45 @@ export default function Home() {
                 size={size}
                 color={icon.color}
                 className="opacity-30 dark:opacity-40" /* Increased opacity for better visibility */
+              />
+            </motion.div>
+          );
+        })}
+
+        {/* Additional flying logos from top right corner */}
+        {backgroundIcons.slice(3, 8).map((icon, i) => {
+          const size = 18 + (i % 3) * 8;
+          const duration = 18 + (i % 4) * 4;
+          const delay = i * 0.5 + 2;
+          const startX = 100 - i * 5;
+          const startY = -10 - (i % 3) * 5;
+          const endY = 110 + (i % 5) * 10;
+          const moveX = i % 2 === 0 ? -60 : -90;
+
+          return (
+            <motion.div
+              key={`topright-${i}`}
+              className="absolute"
+              style={{
+                left: `${startX}%`,
+                top: `${startY}%`,
+              }}
+              animate={{
+                top: `${endY}%`,
+                rotate: [0, -360],
+                x: [0, moveX, 0],
+              }}
+              transition={{
+                duration: duration,
+                repeat: Infinity,
+                delay: delay,
+                ease: "linear",
+              }}
+            >
+              <icon.icon
+                size={size}
+                color={icon.color}
+                className="opacity-30 dark:opacity-40"
               />
             </motion.div>
           );

@@ -202,14 +202,14 @@ export default function SwipePage() {
         />
       </div>
 
-      {/* Category Sidebar - restored to original styling */}
+      {/* Category Sidebar - fixed mobile styling */}
       <motion.div
-        className="fixed left-0 top-0 bottom-0 z-30 w-20 md:w-48 bg-card/30 backdrop-blur-md border-r shadow-sm overflow-hidden"
+        className="fixed left-0 top-16 bottom-0 z-30 w-20 md:w-48 bg-card/30 backdrop-blur-md border-r shadow-sm overflow-hidden"
         initial={{ x: -80 }}
         animate={{ x: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
       >
-        <div className="flex flex-col h-full p-2 pt-20">
+        <div className="flex flex-col h-full p-2 md:pt-4">
           <h3 className="hidden md:block mb-4 px-3 text-center text-sm font-medium text-muted-foreground">
             Tech Categories
           </h3>
@@ -282,8 +282,8 @@ export default function SwipePage() {
         </div>
       </motion.div>
 
-      {/* Main card area - moved to the right to make space for sidebar */}
-      <div className="w-full max-w-sm ml-20 md:ml-48">
+      {/* Main card area - ensure proper spacing on mobile */}
+      <div className="w-full max-w-sm ml-20 md:ml-48 mt-16 md:mt-0">
         {/* Progress bar - repositioned above the cards */}
         <motion.div
           className="mb-6 w-full"
