@@ -79,13 +79,6 @@ DevMatch is highly customizable:
 - Customize the UI components in `components/ui`
 - Modify animations in component files
 
-## 📱 Screenshots
-
-<div align="center">
-  <img src="https://source.unsplash.com/WkfDrhxDMC8/400x800" alt="DevMatch Mobile" width="200" />
-  <img src="https://source.unsplash.com/m_HRfLhgABo/400x800" alt="DevMatch Mobile Dark" width="200" />
-</div>
-
 ## 📝 License
 
 This project is [MIT](https://choosealicense.com/licenses/mit/) licensed.
