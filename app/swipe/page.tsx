@@ -10,16 +10,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { SiReact } from "react-icons/si";
-import {
-  Code2,
-  Server,
-  Database,
-  Languages,
-  Cloud,
-  Smartphone,
-  GitBranch,
-  Wrench,
-} from "lucide-react";
 
 // Get all unique categories
 const allCategories = Array.from(
@@ -32,6 +22,7 @@ export default function SwipePage() {
   const [dislikedTech, setDislikedTech] = React.useState<string[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showProgress] = React.useState(true);
+  // Initialize with all categories selected by default
   const [selectedCategories, setSelectedCategories] =
     React.useState<string[]>(allCategories);
   const [filteredTechStack, setFilteredTechStack] = React.useState<Tech[]>([]);
@@ -187,6 +178,12 @@ export default function SwipePage() {
     return emojis[category] || "🔍";
   };
 
+  // Add a useEffect to initialize with all categories selected
+  React.useEffect(() => {
+    // Make sure all categories are selected on initial load
+    setSelectedCategories(allCategories);
+  }, []);
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center p-4">
       {/* Animated background blobs */}
@@ -205,55 +202,73 @@ export default function SwipePage() {
         />
       </div>
 
-      {/* Side categories - fixed positioned with better styling */}
+      {/* Category Sidebar - restored to original styling */}
       <motion.div
-        initial={{ x: -200 }}
+        className="fixed left-0 top-0 bottom-0 z-30 w-20 md:w-48 bg-card/30 backdrop-blur-md border-r shadow-sm overflow-hidden"
+        initial={{ x: -80 }}
         animate={{ x: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="fixed left-0 top-0 bottom-0 w-16 md:w-40 bg-background/80 backdrop-blur-md border-r shadow-md z-10 flex flex-col overflow-y-auto p-3"
+        transition={{ duration: 0.4, ease: "easeOut" }}
       >
-        <div className="flex flex-col space-y-2 mt-16">
-          {allCategories.map((category) => {
-            const isActive = selectedCategories.includes(category);
-            return (
-              <motion.button
-                key={category}
-                whileHover={{
-                  scale: 1.05,
-                  backgroundColor: "rgba(0,0,0,0.05)",
-                }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => toggleCategory(category)}
-                className={`relative group flex flex-col md:flex-row items-center justify-start md:justify-between p-2 rounded-lg cursor-pointer transition-all 
-                  ${
+        <div className="flex flex-col h-full p-2 pt-20">
+          <h3 className="hidden md:block mb-4 px-3 text-center text-sm font-medium text-muted-foreground">
+            Tech Categories
+          </h3>
+
+          <div className="flex-1 flex flex-col gap-2 overflow-auto py-2">
+            {allCategories.map((category, _) => {
+              const isActive = selectedCategories.includes(category);
+              return (
+                <motion.button
+                  key={category}
+                  onClick={() => toggleCategory(category)}
+                  className={`relative flex md:flex-row flex-col items-center gap-2 rounded-lg p-3 text-sm font-medium transition-all overflow-hidden ${
                     isActive
-                      ? `${getBgGradientClass(category)} text-white`
-                      : "hover:bg-accent"
+                      ? "text-foreground"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
-              >
-                <div className="flex items-center gap-2">
-                  {category === "frontend" && <Code2 className="size-4" />}
-                  {category === "backend" && <Server className="size-4" />}
-                  {category === "database" && <Database className="size-4" />}
-                  {category === "language" && <Languages className="size-4" />}
-                  {category === "cloud" && <Cloud className="size-4" />}
-                  {category === "mobile" && <Smartphone className="size-4" />}
-                  {category === "devops" && <GitBranch className="size-4" />}
-                  {category === "tools" && <Wrench className="size-4" />}
-                  <span className="hidden md:inline text-xs font-medium capitalize">
+                  whileHover={{
+                    scale: 1.05,
+                    backgroundColor: "rgba(0,0,0,0.05)",
+                  }}
+                  whileTap={{ scale: 0.95 }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{
+                    delay: 0.1 * _,
+                    duration: 0.3,
+                  }}
+                >
+                  {/* Background gradient when active */}
+                  {isActive && (
+                    <motion.div
+                      className={`absolute inset-0 opacity-20 ${getBgGradientClass(
+                        category
+                      )}`}
+                      layoutId={`bg-${category}`}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 0.2 }}
+                      exit={{ opacity: 0 }}
+                    />
+                  )}
+
+                  <span className="text-xl">{getEmoji(category)}</span>
+                  <span className="hidden md:block text-xs capitalize">
                     {category}
                   </span>
-                </div>
 
-                {isActive && (
-                  <motion.div
-                    className="absolute right-2 top-2 hidden md:flex size-3 items-center justify-center rounded-full bg-primary"
-                    layoutId="active-indicator"
-                  />
-                )}
-              </motion.button>
-            );
-          })}
+                  {isActive && (
+                    <motion.div
+                      className="absolute right-2 top-2 hidden md:flex size-4 items-center justify-center rounded-full bg-white border shadow-sm"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      transition={{ duration: 0.2 }}
+                    />
+                  )}
+                </motion.button>
+              );
+            })}
+          </div>
 
           <motion.button
             whileHover={{ scale: 1.05, backgroundColor: "rgba(0,0,0,0.05)" }}
@@ -267,8 +282,8 @@ export default function SwipePage() {
         </div>
       </motion.div>
 
-      {/* Main card area - with proper margin to avoid sidebar overlap */}
-      <div className="w-full max-w-sm ml-20 md:ml-44 pt-8">
+      {/* Main card area - moved to the right to make space for sidebar */}
+      <div className="w-full max-w-sm ml-20 md:ml-48">
         {/* Progress bar - repositioned above the cards */}
         <motion.div
           className="mb-6 w-full"
