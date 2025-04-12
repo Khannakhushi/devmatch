@@ -72,7 +72,7 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <a
-            href="https://github.com/yourusername/devmatch"
+            href="https://github.com/Khannakhushi/devmatch"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:opacity-80"
