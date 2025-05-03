@@ -163,7 +163,6 @@ export default function SwipePage() {
   };
 
   // Used in previous implementation, keeping for potential future use
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const getEmoji = (category: string) => {
     const emojis: Record<string, string> = {
       frontend: "🖥️",

@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import AiRecommendations from "@/components/AiRecommendations";
 
 // Helper function to find tech synergies and learning recommendations
 interface Recommendation {
@@ -838,6 +839,12 @@ export default function ResultPage() {
                   >
                     Tech Breakdown
                   </TabsTrigger>
+                  <TabsTrigger
+                    value="ai-recommendations"
+                    className="relative h-12 rounded-none border-0 border-b-2 border-transparent data-[state=active]:border-primary bg-transparent"
+                  >
+                    AI Insights
+                  </TabsTrigger>
                 </TabsList>
               </div>
 
@@ -1021,6 +1028,16 @@ export default function ResultPage() {
                       </motion.div>
                     ))}
                   </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="ai-recommendations" className="p-6">
+                <div className="space-y-6">
+                  <p className="text-muted-foreground mb-4">
+                    Our AI has analyzed your technology preferences and
+                    generated personalized recommendations:
+                  </p>
+                  <AiRecommendations likedTech={likedTech} />
                 </div>
               </TabsContent>
             </Tabs>
