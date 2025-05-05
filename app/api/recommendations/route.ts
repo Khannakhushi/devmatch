@@ -6,7 +6,7 @@ export const maxDuration = 30;
 
 // Check configuration and initialize the OpenAI model
 const apiKey = process.env.OPENAI_API_KEY;
-const openAIModel = apiKey ? openai("gpt-4o-mini") : null;
+const openAIModel = apiKey ? openai("gpt-4.1-nano") : null;
 
 // Define interfaces for response structure
 interface TechRecommendation {
@@ -80,105 +80,186 @@ export async function POST(req: Request) {
         ", "
       )}.
       
-      Based on these preferences, provide me with recommendations for the following categories only:
-      1. Frontend: Complementary frontend technologies that would pair well with my current stack
-      2. Backend: Backend technologies and frameworks to consider
-      3. Database: Database options that would work well with my selected technologies
-      4. Cloud: Cloud platforms and deployment options for my stack
+      Based on my technology preferences, provide HIGHLY CONTEXTUALLY RELEVANT recommendations that match my specific domain and interests. The recommendations must be tailored to the exact technologies I've selected, not generic suggestions.
       
-      Format your response as a structured JSON object with these exact keys: 
+      First, carefully analyze my selected technologies to identify:
+      - The primary domain (e.g., web development, mobile dev, data science, DevOps, etc.)
+      - The specific ecosystem (e.g., React ecosystem, iOS/Swift development, Python data stack)
+      - My apparent experience level based on technology choices
+      - Any clear gaps in my current stack that need to be filled
+      
+      Then provide specialized recommendations in these categories:
+      
+      1. Frontend: If I've selected any MOBILE technologies like Swift/iOS or React Native, recommend mobile-specific UI frameworks, design tools and libraries that pair well. If I've selected web technologies, suggest complementary frontend tools for that specific ecosystem.
+      
+      2. Backend: Recommend backend technologies that DIRECTLY integrate with my chosen frontend/mobile stack. For mobile devs, focus on mobile-specific backend services (e.g., CloudKit for iOS). For web devs, recommend backends that match their language preferences.
+      
+      3. Database: Suggest databases that have first-class support and strong integration with my specific stack, not generic recommendations. For mobile, include mobile-specific databases if relevant.
+      
+      4. Cloud: Recommend deployment/cloud solutions that are OPTIMIZED for my specific stack (e.g., App Store deployment for iOS, specialized hosting for specific web frameworks).
+      
+      5. Project Ideas: Suggest EXACTLY 2 realistic, domain-specific projects that would leverage my exact technology choices. For mobile devs, suggest mobile app ideas. For web devs, suggest web applications. The ideas should showcase the strengths of my specific stack choices.
+      
+      Ensure your recommendations are:
+      - HIGHLY SPECIALIZED to my exact technology choices (not generic suggestions)
+      - Contextually relevant to the specific domain of my selected technologies
+      - Modern but well-established with good documentation
+      - Missing from my current selections (don't recommend technologies I've already picked)
+      - Actually used together in real-world production by companies
+      
+      Format your response as a structured JSON object with these exact keys:
       {
-        "frontend": [array of 3-5 technology recommendations with short descriptions],
-        "backend": [array of 3-5 technology recommendations with short descriptions],
-        "database": [array of 3-5 technology recommendations with short descriptions],
-        "cloud": [array of 3-5 technology recommendations with short descriptions],
-        "projectIdeas": [array of 2-3 project ideas that combine these technologies]
+        "frontend": [
+          { 
+            "name": "Technology Name", 
+            "description": "Brief explanation highlighting how it complements my specific stack and why it's a good fit (1-2 sentences max)",
+            "resources": [
+              { "name": "Resource Name", "url": "Resource URL", "type": "documentation|tutorial|course|community" },
+              { "name": "Another Resource", "url": "Resource URL", "type": "documentation|tutorial|course|community" }
+            ]
+          }
+        ],
+        "backend": [
+          { 
+            "name": "Technology Name", 
+            "description": "Brief explanation highlighting how it complements my specific stack and why it's a good fit (1-2 sentences max)",
+            "resources": [
+              { "name": "Resource Name", "url": "Resource URL", "type": "documentation|tutorial|course|community" },
+              { "name": "Another Resource", "url": "Resource URL", "type": "documentation|tutorial|course|community" }
+            ]
+          }
+        ],
+        "database": [
+          { 
+            "name": "Technology Name", 
+            "description": "Brief explanation highlighting how it complements my specific stack and why it's a good fit (1-2 sentences max)",
+            "resources": [
+              { "name": "Resource Name", "url": "Resource URL", "type": "documentation|tutorial|course|community" },
+              { "name": "Another Resource", "url": "Resource URL", "type": "documentation|tutorial|course|community" }
+            ]
+          }
+        ],
+        "cloud": [
+          { 
+            "name": "Technology Name", 
+            "description": "Brief explanation highlighting how it complements my specific stack and why it's a good fit (1-2 sentences max)",
+            "resources": [
+              { "name": "Resource Name", "url": "Resource URL", "type": "documentation|tutorial|course|community" },
+              { "name": "Another Resource", "url": "Resource URL", "type": "documentation|tutorial|course|community" }
+            ]
+          }
+        ],
+        "projectIdeas": [
+          { "name": "Project Name", "description": "Concise description of a realistic project that fully utilizes my specific technology choices (2-3 sentences max)" },
+          { "name": "Project Name", "description": "Concise description of a realistic project that fully utilizes my specific technology choices (2-3 sentences max)" }
+        ]
       }
       
-      Each technology recommendation should include a "name" and "description" property. 
-      Each project idea should also follow the format { "name": "Project Name", "description": "Description of the project" }.
-      Do not include any markdown formatting like code blocks, just return a clean JSON object.
+      Return ONLY the JSON object with no explanatory text or code blocks.
     `;
 
     // Use generateText
     const { text } = await generateText({
       model: openAIModel,
       messages: [{ role: "user", content: prompt }],
+      temperature: 0.7,
+      maxTokens: 1500,
     });
 
     console.log("Raw API response:", text);
 
     // Extract JSON from the response
-    // First try direct JSON parsing
     let responseData: RecommendationData;
     try {
-      responseData = JSON.parse(text) as RecommendationData;
+      // First, try direct JSON parsing
+      responseData = JSON.parse(text.trim()) as RecommendationData;
       console.log("Successfully parsed direct JSON response");
     } catch (parseError) {
       console.log("Direct parsing failed:", parseError);
       console.log("Trying to extract JSON from text...");
 
-      // Look for JSON within the text (removing any markdown code blocks)
       try {
-        // Pattern to extract content between JSON code blocks
-        const jsonPattern = /```(?:json)?\s*({[\s\S]*?})\s*```/;
-        const match = text.match(jsonPattern);
+        // Remove any "```json" and "```" markers
+        const cleanedText = text.replace(/```json\s+|\s+```|```/g, "");
+        // Try parsing the cleaned text
+        responseData = JSON.parse(cleanedText.trim()) as RecommendationData;
+        console.log("Successfully parsed cleaned JSON");
+      } catch (cleanError) {
+        console.log("Cleaned parsing failed:", cleanError);
 
-        if (match && match[1]) {
-          // Try to parse the extracted JSON
-          responseData = JSON.parse(match[1]) as RecommendationData;
-          console.log("Successfully extracted and parsed JSON from markdown");
-        } else {
-          // Try to find any JSON object in the text
-          const possibleJson = text.match(/{[\s\S]*?}/);
-          if (possibleJson) {
-            responseData = JSON.parse(possibleJson[0]) as RecommendationData;
-            console.log("Found and parsed JSON object in text");
+        // Look for JSON within the text using regex
+        try {
+          // Pattern to extract content between JSON code blocks or any JSON-like structure
+          const jsonPattern = /{[\s\S]*?}/;
+          const match = text.match(jsonPattern);
+
+          if (match && match[0]) {
+            // Try to parse the extracted JSON
+            responseData = JSON.parse(match[0]) as RecommendationData;
+            console.log("Successfully extracted and parsed JSON with regex");
           } else {
             throw new Error("No JSON pattern found in the response");
           }
+        } catch (extractError) {
+          console.error("JSON extraction failed:", extractError);
+
+          // Provide the raw text as fallback
+          responseData = {
+            frontend: [],
+            backend: [],
+            database: [],
+            cloud: [],
+            projectIdeas: [],
+            rawText: text,
+          };
         }
-      } catch (extractError) {
-        console.error("JSON extraction failed:", extractError);
-        responseData = {
-          frontend: [],
-          backend: [],
-          database: [],
-          cloud: [],
-          projectIdeas: [],
-          rawText: text,
-        };
       }
     }
 
+    // Ensure each section exists and is an array
+    responseData.frontend = Array.isArray(responseData.frontend)
+      ? responseData.frontend
+      : [];
+    responseData.backend = Array.isArray(responseData.backend)
+      ? responseData.backend
+      : [];
+    responseData.database = Array.isArray(responseData.database)
+      ? responseData.database
+      : [];
+    responseData.cloud = Array.isArray(responseData.cloud)
+      ? responseData.cloud
+      : [];
+    responseData.projectIdeas = Array.isArray(responseData.projectIdeas)
+      ? responseData.projectIdeas
+      : [];
+
     // Fix projectIdeas format if needed
-    if (responseData.projectIdeas && Array.isArray(responseData.projectIdeas)) {
-      responseData.projectIdeas = responseData.projectIdeas.map(
-        (item: TechRecommendation | string) => {
-          // If projectIdea is already an object with name and description, keep it
-          if (
-            typeof item === "object" &&
-            item !== null &&
-            "name" in item &&
-            "description" in item
-          ) {
-            return item as TechRecommendation;
-          }
-          // If it's a string, convert it to the proper format
-          if (typeof item === "string") {
-            return {
-              name: item.split(":")[0] || "Project Idea",
-              description: item,
-            };
-          }
-          // Default fallback
+    responseData.projectIdeas = responseData.projectIdeas.map(
+      (item: TechRecommendation | string) => {
+        // If projectIdea is already an object with name and description, keep it
+        if (
+          typeof item === "object" &&
+          item !== null &&
+          "name" in item &&
+          "description" in item
+        ) {
+          return item as TechRecommendation;
+        }
+        // If it's a string, convert it to the proper format
+        if (typeof item === "string") {
+          const parts = item.split(": ");
           return {
-            name: "Project Idea",
-            description: "A project using your selected technologies.",
+            name: parts.length > 1 ? parts[0] : "Project Idea",
+            description: item,
           };
         }
-      );
-    }
+        // Default fallback
+        return {
+          name: "Project Idea",
+          description: "A project using your selected technologies.",
+        };
+      }
+    );
 
     console.log("Final processed data:", JSON.stringify(responseData, null, 2));
 
