@@ -220,8 +220,6 @@ export default function ResultPage() {
     (a, b) => techsByCategory[b].length - techsByCategory[a].length
   );
 
-
-
   const handleShare = async () => {
     const text = `I matched with the ${customStack.name} on DevMatch! Check out my perfect tech stack combo!`;
 

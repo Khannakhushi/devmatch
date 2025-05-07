@@ -145,21 +145,36 @@ export default function SwipePage() {
     dislikedTech,
   ]);
 
+  // LEFT-CLICK: Always toggle category in/out of selection, never single-select
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) => {
-      if (prev.includes(category)) {
-        // Don't allow deselecting if it's the last category
-        if (prev.length === 1) return prev;
-        return prev.filter((c) => c !== category);
-      } else {
-        return [...prev, category];
+      if (prev.length === 1 && prev.includes(category)) {
+        toast.info("You must have at least one category selected");
+        return prev;
       }
+      if (prev.includes(category)) {
+        return prev.filter((c) => c !== category);
+      }
+      return [...prev, category];
     });
   };
 
+  // RIGHT-CLICK: Only this category (single-select)
+  const deselectAllExcept = (category: string) => {
+    setSelectedCategories([category]);
+    toast.info(`Only ${category} category selected`);
+  };
+
+  // Select all categories
+  const selectAllCategories = () => {
+    setSelectedCategories(allCategories);
+    toast.success("All categories selected");
+  };
+
+  // Reset filters (same as select all)
   const resetFilters = () => {
     setSelectedCategories(allCategories);
-    toast.success("Filters reset to show all categories");
+    toast.success("All categories selected");
   };
 
   // Used in previous implementation, keeping for potential future use
@@ -201,85 +216,179 @@ export default function SwipePage() {
         />
       </div>
 
-      {/* Category Sidebar - fixed mobile styling */}
+      {/* Category Sidebar - Modern Redesign */}
       <motion.div
-        className="fixed left-0 top-16 bottom-0 z-30 w-20 md:w-48 bg-card/30 backdrop-blur-md border-r shadow-sm overflow-hidden"
-        initial={{ x: -80 }}
-        animate={{ x: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="fixed left-0 top-16 bottom-0 z-30 w-20 md:w-64 bg-black/40 backdrop-blur-xl border-r border-white/10 shadow-2xl overflow-hidden"
+        initial={{ x: -100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
       >
-        <div className="flex flex-col h-full p-2 md:pt-4">
-          <h3 className="hidden md:block mb-4 px-3 text-center text-sm font-medium text-muted-foreground">
+        <div className="flex flex-col h-full p-4">
+          <motion.h3
+            className="hidden md:block mb-6 px-3 text-center text-lg font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
             Tech Categories
-          </h3>
+          </motion.h3>
 
-          <div className="flex-1 flex flex-col gap-2 overflow-auto py-2">
-            {allCategories.map((category, _) => {
+          {/* Quick actions */}
+          <motion.div
+            className="hidden md:flex gap-2 mb-4 px-2"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <motion.button
+              onClick={selectAllCategories}
+              className="flex-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Select All
+            </motion.button>
+            <motion.button
+              onClick={resetFilters}
+              className="flex-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Reset
+            </motion.button>
+          </motion.div>
+
+          <div className="flex-1 flex flex-col gap-3 overflow-auto py-2 custom-scrollbar">
+            {allCategories.map((category, index) => {
               const isActive = selectedCategories.includes(category);
               return (
                 <motion.button
                   key={category}
                   onClick={() => toggleCategory(category)}
-                  className={`relative flex md:flex-row flex-col items-center gap-2 rounded-lg p-3 text-sm font-medium transition-all overflow-hidden ${
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground hover:text-foreground"
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    deselectAllExcept(category);
+                  }}
+                  className={`relative group flex md:flex-row flex-col items-center gap-3 rounded-xl p-3 text-sm font-medium transition-all overflow-hidden ${
+                    isActive ? "text-white" : "text-gray-400 hover:text-white"
                   }`}
                   whileHover={{
-                    scale: 1.05,
-                    backgroundColor: "rgba(0,0,0,0.05)",
+                    scale: 1.02,
+                    backgroundColor: "rgba(255,255,255,0.05)",
                   }}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.98 }}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{
-                    delay: 0.1 * _,
+                    delay: 0.1 * index,
                     duration: 0.3,
                   }}
                 >
-                  {/* Background gradient when active */}
+                  {/* Active indicator bar - show for every selected category */}
                   {isActive && (
                     <motion.div
-                      className={`absolute inset-0 opacity-20 ${getBgGradientClass(
-                        category
-                      )}`}
-                      layoutId={`bg-${category}`}
+                      className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-purple-400"
                       initial={{ opacity: 0 }}
-                      animate={{ opacity: 0.2 }}
+                      animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                     />
                   )}
 
-                  <span className="text-xl">{getEmoji(category)}</span>
-                  <span className="hidden md:block text-xs capitalize">
-                    {category}
-                  </span>
+                  {/* Category icon with glow effect */}
+                  <motion.div
+                    className={`relative flex items-center justify-center w-8 h-8 rounded-lg z-0 ${
+                      isActive ? "bg-white/10" : "bg-white/5"
+                    }`}
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                  >
+                    {/* Glow for every selected category, always behind emoji */}
+                    {isActive && (
+                      <motion.div
+                        className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-400/20 to-purple-400/20 blur-sm z-[-1]"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      />
+                    )}
+                    <span className="text-lg relative z-10">
+                      {getEmoji(category)}
+                    </span>
+                  </motion.div>
 
+                  {/* Category name with hover effect */}
+                  <motion.span
+                    className="hidden md:block text-sm font-medium"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </motion.span>
+
+                  {/* Active checkmark */}
                   {isActive && (
                     <motion.div
-                      className="absolute right-2 top-2 hidden md:flex size-4 items-center justify-center rounded-full bg-white border shadow-sm"
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      transition={{ duration: 0.2 }}
-                    />
+                      className="absolute right-3 hidden md:flex"
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 10,
+                      }}
+                    >
+                      <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400" />
+                    </motion.div>
                   )}
+
+                  {/* Tooltip for right-click - moved to corner */}
+                  <div className="absolute bottom-0.5 right-0.5 hidden group-hover:block">
+                    <span className="text-[8px] text-gray-500/50 bg-black/10 px-1 rounded-full">
+                      r-click
+                    </span>
+                  </div>
                 </motion.button>
               );
             })}
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.05, backgroundColor: "rgba(0,0,0,0.05)" }}
-            whileTap={{ scale: 0.95 }}
-            onClick={resetFilters}
-            className="mt-2 flex flex-col md:flex-row items-center justify-center gap-2 rounded-lg p-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+          {/* Mobile reset button */}
+          <motion.div
+            className="mt-4 px-3 md:hidden"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
           >
-            <RefreshCw className="size-4" />
-            <span className="hidden md:block">Reset Filters</span>
-          </motion.button>
+            <motion.button
+              onClick={resetFilters}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm font-medium text-gray-300 hover:text-white transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <RefreshCw className="w-4 h-4" />
+              Reset
+            </motion.button>
+          </motion.div>
         </div>
       </motion.div>
+
+      {/* Add custom scrollbar styles */}
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      `}</style>
 
       {/* Main card area - ensure proper spacing on mobile */}
       <div className="w-full max-w-sm ml-20 md:ml-48 mt-16 md:mt-0">
