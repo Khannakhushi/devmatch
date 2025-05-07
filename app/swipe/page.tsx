@@ -525,21 +525,6 @@ export default function SwipePage() {
   );
 }
 
-// Helper function to get background gradient for each category
-function getBgGradientClass(category: string): string {
-  const classes: Record<string, string> = {
-    frontend: "bg-gradient-to-r from-blue-400 to-blue-600",
-    backend: "bg-gradient-to-r from-green-400 to-green-600",
-    database: "bg-gradient-to-r from-orange-400 to-orange-600",
-    language: "bg-gradient-to-r from-purple-400 to-purple-600",
-    cloud: "bg-gradient-to-r from-cyan-400 to-cyan-600",
-    mobile: "bg-gradient-to-r from-pink-400 to-pink-600",
-    devops: "bg-gradient-to-r from-amber-400 to-amber-600",
-    tools: "bg-gradient-to-r from-indigo-400 to-indigo-600",
-  };
-  return classes[category] || "bg-gradient-to-r from-gray-400 to-gray-600";
-}
-
 // Helper function to get the appropriate color for each tech
 function getIconColor(techId: string): string {
   const colors: Record<string, string> = {
